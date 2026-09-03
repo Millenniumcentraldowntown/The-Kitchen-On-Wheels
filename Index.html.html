@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#181818" />
+  <title>Millennium Central Downtown</title>
+
+  <style>
+    :root {
+      --gold: #cda84b;
+      --gold-light: #e6cb7b;
+      --black: #111111;
+      --charcoal: #1d1d1d;
+      --white: #ffffff;
+      --muted: #6d6d6d;
+      --page-bg: #f4f4f2;
+      --radius: 14px;
+      --shadow: 0 10px 30px rgba(0,0,0,.12);
+      --max-width: 680px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      color: var(--black);
+      background: var(--page-bg);
+      line-height: 1.45;
+    }
+
+    img { display: block; width: 100%; height: auto; }
+    button, input, a { font: inherit; }
+    a { color: inherit; text-decoration: none; }
+
+    .site-shell {
+      width: 100%;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      background: var(--white);
+      min-height: 100vh;
+      overflow: hidden;
+      box-shadow: 0 0 45px rgba(0,0,0,.08);
+    }
+
+    /* ---------------- HEADER ---------------- */
+    .site-header {
+      position: fixed;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: min(100%, var(--max-width));
+      z-index: 1000;
+      background: linear-gradient(to bottom, rgba(0,0,0,.55), rgba(0,0,0,.05));
+      transition: background .25s ease, box-shadow .25s ease;
+    }
+
+    .site-header.scrolled {
+      background: rgba(20,20,20,.94);
+      box-shadow: 0 8px 24px rgba(0,0,0,.18);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+
+    .header-inner {
+      min-height: 74px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 18px;
+      padding: 10px 18px;
+    }
+
+    .brand { display: inline-flex; align-items: center; flex: 0 0 auto; }
+    .brand img {
+      width: 118px;
+      max-height: 48px;
+      object-fit: contain;
+      object-position: left center;
+    }
+
+    .header-actions { display: flex; align-items: center; gap: 10px; }
+
+    .book-now {
+      min-height: 38px;
+      padding: 0 16px;
+      border: 0;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #171717;
+      font-weight: 700;
+      font-size: 12px;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .menu-toggle {
+      width: 40px;
+      height: 40px;
+      border: 0;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      background: transparent;
+      color: var(--white);
+      cursor: pointer;
+    }
+
+    .menu-icon,
+    .menu-icon::before,
+    .menu-icon::after {
+      width: 23px;
+      height: 2px;
+      background: currentColor;
+      border-radius: 99px;
+      display: block;
+      position: relative;
+      transition: .2s ease;
+    }
+
+    .menu-icon::before,
+    .menu-icon::after {
+      content: "";
+      position: absolute;
+      left: 0;
+    }
+
+    .menu-icon::before { top: -7px; }
+    .menu-icon::after  { top: 7px; }
+
+    .mobile-nav {
+      display: none;
+      background: rgba(18,18,18,.97);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 10px 18px 18px;
+    }
+
+    .mobile-nav.open { display: block; }
+    .mobile-nav a {
+      display: block;
+      padding: 12px 0;
+      color: var(--white);
+      font-size: 14px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+
+    /* ---------------- HERO ---------------- */
+    .hero {
+      min-height: 360px;
+      background:
+        linear-gradient(rgba(0,0,0,.28), rgba(0,0,0,.28)),
+        url("assets/hero-banner.jpg") center/cover no-repeat;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--white);
+    }
+
+    .hero-copy { max-width: 520px; padding: 110px 24px 44px; }
+    .hero-kicker {
+      margin: 0 0 6px;
+      font-size: 13px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      opacity: .86;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: clamp(34px, 8vw, 52px);
+      line-height: .98;
+      text-transform: uppercase;
+      letter-spacing: -.02em;
+      text-shadow: 0 3px 18px rgba(0,0,0,.35);
+    }
+
+    .hero p { margin: 12px 0 0; font-size: 15px; color: rgba(255,255,255,.92); }
+    .hero-copy.banner-only { display: none; }
+
+    /* ---------------- GENERIC SECTION ---------------- */
+    .section { padding: 48px 18px; }
+    .section-heading { text-align: center; margin-bottom: 22px; }
+    .section-heading .eyebrow {
+      margin: 0 0 4px;
+      font-size: 12px;
+      color: #444;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+
+    .section-heading h2 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.1;
+      text-transform: uppercase;
+      letter-spacing: -.01em;
+    }
+
+    /* ---------------- OFFER CARDS ---------------- */
+    .offer-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .offer-card {
+      min-height: 220px;
+      position: relative;
+      overflow: hidden;
+      border-radius: 10px;
+      box-shadow: var(--shadow);
+      background: #202020;
+      color: var(--white);
+      isolation: isolate;
+    }
+
+    .offer-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,.92) 0%, rgba(0,0,0,.28) 56%, rgba(0,0,0,.04) 100%);
+      z-index: -1;
+    }
+
+    .offer-card img {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+
+    .offer-content {
+      height: 100%;
+      min-height: 220px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      text-align: center;
+      padding: 14px 10px 14px;
+    }
+
+    .offer-content h3 {
+      margin: 0 0 10px;
+      font-size: 14px;
+      line-height: 1.15;
+      text-transform: uppercase;
+    }
+
+    .gold-btn {
+      border: 0;
+      cursor: pointer;
+      border-radius: 4px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #171717;
+      font-weight: 700;
+    }
+
+    .mini-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 76px;
+      height: 32px;
+      padding: 0 8px;
+      border: 0;
+      border-radius: 3px;
+      background: #d5b354;
+      color: #111111;
+      font-size: 9px;
+      font-weight: 700;
+      line-height: 1;
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.18);
+      transition: transform .18s ease, filter .18s ease;
+    }
+
+    .mini-btn:hover,
+    .mini-btn:focus-visible {
+      filter: brightness(.96);
+      transform: translateY(-1px);
+    }
+
+    /* ---------------- IMAGE GALLERY ---------------- */
+    .gallery-section {
+      padding: 48px 18px;
+      background: #ffffff;
+      margin-bottom: 40px;
+    }
+
+    .gallery-slider {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      background: #111111;
+      box-shadow: 0 10px 28px rgba(0,0,0,.12);
+    }
+
+    .gallery-pdf-link { display: block; cursor: pointer; }
+
+    .gallery-track {
+      display: flex;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .gallery-track::-webkit-scrollbar { display: none; }
+
+    .gallery-slide {
+      flex: 0 0 100%;
+      scroll-snap-align: start;
+      position: relative;
+      aspect-ratio: 16 / 9;
+      background: #eeeeee;
+      margin: 0;
+      cursor: pointer;
+    }
+
+    .gallery-slide img { width: 100%; height: 100%; object-fit: contain; }
+
+    .gallery-counter {
+      position: absolute;
+      right: 12px;
+      bottom: 12px;
+      z-index: 3;
+      min-width: 52px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(0,0,0,.72);
+      color: #ffffff;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .gallery-progress {
+      width: 120px;
+      height: 4px;
+      margin: 14px auto 0;
+      border-radius: 999px;
+      background: #d9d9d9;
+      overflow: hidden;
+    }
+
+    .gallery-progress-bar {
+      width: 0%;
+      height: 100%;
+      background: #111111;
+      border-radius: inherit;
+      transition: width .25s ease;
+    }
+
+    /* ---------------- OUTLET CAROUSEL ---------------- */
+    .outlet-section { background: #fbfbfa; }
+    .carousel-wrap { position: relative; }
+
+    .outlet-track {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: calc(50% - 7px);
+      gap: 14px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: none;
+      padding: 3px 2px 9px;
+    }
+
+    .outlet-track::-webkit-scrollbar { display: none; }
+
+    .outlet-card {
+      scroll-snap-align: start;
+      border: 1px solid #dacb9f;
+      border-radius: 9px;
+      overflow: hidden;
+      background: var(--white);
+      box-shadow: 0 6px 20px rgba(0,0,0,.08);
+      cursor: pointer;
+    }
+
+    .outlet-logo-area {
+      min-height: 160px;
+      display: grid;
+      place-items: center;
+      padding: 18px;
+    }
+
+    .outlet-logo-area img { width: 100%; max-height: 110px; object-fit: contain; }
+
+    .outlet-meta {
+      min-height: 72px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      background: #0d0d0d;
+      color: var(--white);
+      font-size: 12px;
+    }
+
+    .outlet-meta strong {
+      margin-top: 4px;
+      font-size: 11px;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+
+    .carousel-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 34px;
+      height: 34px;
+      border: 0;
+      border-radius: 50%;
+      background: #111;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,.2);
+      z-index: 3;
+    }
+
+    .carousel-btn.prev { left: -8px; }
+    .carousel-btn.next { right: -8px; }
+
+    /* ---------------- HAPPY HOUR ---------------- */
+    .happy-hour {
+      min-height: 310px;
+      background:
+        linear-gradient(90deg, rgba(0,0,0,.78), rgba(0,0,0,.28)),
+        url("assets/happy-hour-bg.jpg") center/cover no-repeat;
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      padding: 34px 24px;
+    }
+
+    .happy-content { max-width: 360px; }
+    .happy-content h2 {
+      margin: 0 0 6px;
+      font-size: 31px;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .happy-content p { margin: 0 0 8px; font-size: 12px; opacity: .85; }
+    .happy-status { font-weight: 700; letter-spacing: .03em; }
+    .happy-schedule {
+      margin-top: 4px !important;
+      font-size: 11px !important;
+      opacity: .72 !important;
+    }
+
+    .countdown {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin: 8px 0 18px;
+      font-size: 27px;
+      font-weight: 700;
+      letter-spacing: .04em;
+    }
+
+    .gold-btn {
+      min-height: 42px;
+      padding: 0 18px;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .04em;
+    }
+
+    /* ---------------- FOOTER ---------------- */
+    .site-footer {
+      padding: 38px 20px 56px;
+      color: var(--white);
+      text-align: center;
+      background: #000000;
+    }
+
+    .newsletter-title { margin: 0 0 12px; font-size: 14px; }
+
+    .newsletter-form {
+      width: min(100%, 430px);
+      margin: 0 auto;
+      display: flex;
+      border: 1px solid var(--gold);
+      border-radius: 5px;
+      overflow: hidden;
+    }
+
+    .newsletter-form input {
+      min-width: 0;
+      flex: 1;
+      border: 0;
+      outline: 0;
+      color: var(--white);
+      background: rgba(255,255,255,.06);
+      padding: 0 14px;
+      min-height: 44px;
+    }
+
+    .newsletter-form input::placeholder { color: rgba(255,255,255,.58); }
+
+    .newsletter-form button {
+      border: 0;
+      padding: 0 18px;
+      min-height: 44px;
+      background: linear-gradient(135deg, var(--gold-light), var(--gold));
+      color: #111;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .form-message {
+      min-height: 18px;
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: #e8d491;
+    }
+
+    .connect-title { margin: 26px 0 12px; font-size: 13px; }
+
+    .socials {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .socials a {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: var(--white);
+      color: var(--black);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform .18s ease, opacity .18s ease;
+    }
+
+    .socials a:hover,
+    .socials a:focus-visible {
+      transform: translateY(-2px);
+      opacity: .9;
+    }
+
+    .socials svg { width: 18px; height: 18px; fill: currentColor; display: block; }
+    .copyright { margin: 0; font-size: 11px; color: rgba(255,255,255,.66); }
+
+    /* ---------------- SECTION SPACING ---------------- */
+    #offerings,
+    #outlets { margin-bottom: 40px; }
+
+    .happy-hour { margin-top: 28px; }
+    .site-footer { margin-top: 0px; }
+
+    /* ---------------- RESPONSIVE ---------------- */
+    @media (max-width: 520px) {
+      .header-inner { min-height: 66px; padding-inline: 14px; }
+      .brand img { width: 102px; }
+      .book-now { padding-inline: 12px; font-size: 10px; }
+      .hero { min-height: 250px; }
+      .section { padding: 44px 14px; }
+
+      #offerings,
+      #outlets { margin-bottom: 32px; }
+
+      .happy-hour { margin-top: 72px; }
+      .site-footer { margin-top: 0px; }
+      .offer-grid { gap: 8px; }
+
+      .offer-card,
+      .offer-content { min-height: 155px; }
+
+      .offer-content { padding: 10px 6px; }
+      .offer-content h3 { font-size: 10px; margin-bottom: 8px; }
+
+      .gallery-section { padding: 44px 14px; margin-bottom: 32px; }
+      .gallery-slide { aspect-ratio: 16 / 9; }
+
+      .outlet-track {
+        grid-auto-columns: calc(50% - 6px);
+        gap: 12px;
+      }
+
+      .outlet-logo-area { min-height: 135px; padding: 14px; }
+      .carousel-btn { width: 30px; height: 30px; }
+      .happy-hour { min-height: 265px; }
+      .happy-content h2 { font-size: 28px; }
+      .countdown { font-size: 23px; }
+    }
+
+    @media (max-width: 360px) {
+      .book-now { display: none; }
+      .offer-card,
+      .offer-content { min-height: 165px; }
+      .offer-content h3 { font-size: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="site-shell">
+    <!-- Banner -->
+    <section class="hero" id="top">
+      <div class="hero-copy banner-only">
+        <p class="hero-kicker">Your Downtown Escape</p>
+        <h1>Welcome to<br />Millennium Central</h1>
+        <p>Comfort, convenience and city living in one destination.</p>
+      </div>
+    </section>
+
+    <!-- Two equal offering tabs -->
+    <section class="section" id="offerings">
+      <div class="section-heading">
+        <p class="eyebrow">Explore</p>
+        <h2>Our Offerings</h2>
+      </div>
+
+      <div class="offer-grid">
+        <article class="offer-card">
+          <img src="assets/in-room-dining.jpg" alt="Room Service" />
+          <div class="offer-content">
+            <h3></h3>
+            <a class="mini-btn" href="#">View Menu</a>
+          </div>
+        </article>
+
+        <article class="offer-card">
+          <img src="assets/promotions.jpg" alt="Promotions" />
+          <div class="offer-content">
+            <h3></h3>
+            <a class="mini-btn" href="#">See Offers</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- Image Gallery -->
+    <section class="gallery-section" id="gallery">
+      <div class="section-heading">
+        <p class="eyebrow">Discover</p>
+        <h2>Promotions</h2>
+      </div>
+
+      <a class="gallery-slider gallery-pdf-link" id="gallerySlider"
+         href="assets/gallery.pdf"
+         target="_blank"
+         rel="noopener noreferrer"
+         aria-label="Open gallery PDF">
+        <div class="gallery-track" id="galleryTrack">
+          <figure class="gallery-slide"><img src="assets/gallery-01.jpg" alt="Hotel gallery image 1" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-02.jpg" alt="Hotel gallery image 2" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-03.jpg" alt="Hotel gallery image 3" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-04.jpg" alt="Hotel gallery image 4" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-05.jpg" alt="Hotel gallery image 5" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-06.jpg" alt="Hotel gallery image 6" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-07.jpg" alt="Hotel gallery image 7" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-08.jpg" alt="Hotel gallery image 8" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-09.jpg" alt="Hotel gallery image 9" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-10.jpg" alt="Hotel gallery image 10" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-11.jpg" alt="Hotel gallery image 11" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-12.jpg" alt="Hotel gallery image 12" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-13.jpg" alt="Hotel gallery image 13" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-14.jpg" alt="Hotel gallery image 14" loading="lazy" /></figure>
+          <figure class="gallery-slide"><img src="assets/gallery-15.jpg" alt="Hotel gallery image 15" loading="lazy" /></figure>
+        </div>
+
+        <div class="gallery-counter" id="galleryCounter" aria-live="polite">1 / 15</div>
+      </a>
+
+      <div class="gallery-progress" aria-label="Gallery progress">
+        <div class="gallery-progress-bar" id="galleryProgressBar"></div>
+      </div>
+    </section>
+
+    <!-- Outlet carousel -->
+    <section class="section outlet-section" id="outlets">
+      <div class="section-heading">
+        <p class="eyebrow">Dining Section</p>
+        <h2>Our Outlets</h2>
+      </div>
+
+      <div class="carousel-wrap">
+        <button class="carousel-btn prev" id="outletPrev" aria-label="Previous outlet">&#8249;</button>
+
+        <div class="outlet-track" id="outletTrack">
+          <a class="outlet-card" href="https://YOUR-LINK-HERE.com/infinite-pool-bar" target="_blank" rel="noopener noreferrer">
+            <div class="outlet-logo-area"><img src="assets/Logo-The Infinite Pool Bar.png" alt="The Infinite Pool Bar" /></div>
+            <div class="outlet-meta">Explore The Infinite Pool Bar</div>
+          </a>
+
+          <a class="outlet-card" href="https://YOUR-LINK-HERE.com/lemon-pepper" target="_blank" rel="noopener noreferrer">
+            <div class="outlet-logo-area"><img src="assets/Logo-Lemon Pepper.png" alt="Lemon Pepper" /></div>
+            <div class="outlet-meta">Explore Lemon Pepper</div>
+          </a>
+
+          <a class="outlet-card" href="https://YOUR-LINK-HERE.com/kitchen-on-wheels" target="_blank" rel="noopener noreferrer">
+            <div class="outlet-logo-area"><img src="assets/Logo-The Kitchen On Wheels.png" alt="The Kitchen on Wheels" /></div>
+            <div class="outlet-meta">Explore The Kitchen on Wheels</div>
+          </a>
+
+          <a class="outlet-card" href="https://YOUR-LINK-HERE.com/gym" target="_blank" rel="noopener noreferrer">
+            <div class="outlet-logo-area"><img src="assets/Logo-Gym.png" alt="GYM" /></div>
+            <div class="outlet-meta">Explore the GYM</div>
+          </a>
+        </div>
+
+        <button class="carousel-btn next" id="outletNext" aria-label="Next outlet">&#8250;</button>
+      </div>
+    </section>
+
+    <!-- Happy Hour -->
+    <section class="happy-hour" id="happy-hour">
+      <div class="happy-content">
+        <h2 id="happyTitle">Happy Hour</h2>
+        <p class="happy-status" id="happyStatus">Starts In</p>
+
+        <div class="countdown" aria-live="polite">
+          <span id="hours">00H</span><span>:</span><span id="minutes">00M</span><span>:</span><span id="seconds">00S</span>
+        </div>
+
+        <p class="happy-schedule">Daily | 5:00 PM – 7:00 PM</p>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer" id="newsletter">
+      <p class="connect-title">Connect with us</p>
+      <div class="socials">
+        <a href="#" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-9h3l.5-3h-3.5V8.1c0-.9.3-1.6 1.7-1.6H17V3.8c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3V10H7.5v3h2.8v9h3.2z"/></svg>
+        </a>
+        <a href="#" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.2 2h9.6A5.2 5.2 0 0 1 22 7.2v9.6a5.2 5.2 0 0 1-5.2 5.2H7.2A5.2 5.2 0 0 1 2 16.8V7.2A5.2 5.2 0 0 1 7.2 2zm0 2A3.2 3.2 0 0 0 4 7.2v9.6A3.2 3.2 0 0 0 7.2 20h9.6a3.2 3.2 0 0 0 3.2-3.2V7.2A3.2 3.2 0 0 0 16.8 4H7.2zm10.4 1.5a1.2 1.2 0 1 1 0 2.4 1.2 1.2 0 0 1 0-2.4zM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6z"/></svg>
+        </a>
+        <a href="#" aria-label="Website">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm6.9 6h-3.1a15.8 15.8 0 0 0-1.4-3.2A8.1 8.1 0 0 1 18.9 8zM12 4c.8 1 1.5 2.4 1.9 4h-3.8c.4-1.6 1.1-3 1.9-4zM9.6 4.8A15.8 15.8 0 0 0 8.2 8H5.1a8.1 8.1 0 0 1 4.5-3.2zM4.3 10h3.5a16 16 0 0 0 0 4H4.3a8.1 8.1 0 0 1 0-4zm.8 6h3.1a15.8 15.8 0 0 0 1.4 3.2A8.1 8.1 0 0 1 5.1 16zm6.9 4c-.8-1-1.5-2.4-1.9-4h3.8c-.4 1.6-1.1 3-1.9 4zm2.3-6H9.7a13.7 13.7 0 0 1 0-4h4.6a13.7 13.7 0 0 1 0 4zm.1 5.2a15.8 15.8 0 0 0 1.4-3.2h3.1a8.1 8.1 0 0 1-4.5 3.2zM16.2 14a16 16 0 0 0 0-4h3.5a8.1 8.1 0 0 1 0 4h-3.5z"/></svg>
+        </a>
+      </div>
+
+      <p class="copyright">Copyright © <span id="year"></span> All rights reserved.</p>
+    </footer>
+  </main>
+
+  <script>
+    // Image gallery slider
+    const galleryTrack = document.getElementById("galleryTrack");
+    const galleryCounter = document.getElementById("galleryCounter");
+    const gallerySlider = document.getElementById("gallerySlider");
+    const galleryProgressBar = document.getElementById("galleryProgressBar");
+
+    const originalGallerySlides = Array.from(galleryTrack.querySelectorAll(".gallery-slide"));
+    const galleryTotal = originalGallerySlides.length;
+
+    const firstSlideClone = originalGallerySlides[0].cloneNode(true);
+    firstSlideClone.setAttribute("aria-hidden", "true");
+    firstSlideClone.tabIndex = -1;
+    galleryTrack.appendChild(firstSlideClone);
+
+    const gallerySlides = Array.from(galleryTrack.querySelectorAll(".gallery-slide"));
+    let galleryIndex = 0;
+    let galleryTimer = null;
+    let galleryResetTimer = null;
+
+    function updateGalleryUI(displayIndex = galleryIndex) {
+      const visibleIndex = displayIndex >= galleryTotal ? 0 : displayIndex;
+      galleryCounter.textContent = `${visibleIndex + 1} / ${galleryTotal}`;
+      const progress = ((visibleIndex + 1) / galleryTotal) * 100;
+      galleryProgressBar.style.width = `${progress}%`;
+    }
+
+    function resetFromCloneToFirst() {
+      clearTimeout(galleryResetTimer);
+      galleryResetTimer = setTimeout(() => {
+        if (galleryIndex !== galleryTotal) return;
+        galleryTrack.style.scrollBehavior = "auto";
+        galleryTrack.scrollLeft = 0;
+        galleryIndex = 0;
+        updateGalleryUI(0);
+        requestAnimationFrame(() => { galleryTrack.style.scrollBehavior = ""; });
+      }, 650);
+    }
+
+    function goToGallerySlide(index) {
+      if (!galleryTotal) return;
+      galleryIndex = index;
+      galleryTrack.scrollTo({
+        left: gallerySlides[galleryIndex].offsetLeft,
+        behavior: "smooth"
+      });
+      updateGalleryUI(galleryIndex);
+      if (galleryIndex === galleryTotal) resetFromCloneToFirst();
+    }
+
+    galleryTrack.addEventListener("scroll", () => {
+      const slideWidth = galleryTrack.clientWidth;
+      if (!slideWidth) return;
+      const newIndex = Math.round(galleryTrack.scrollLeft / slideWidth);
+      const clampedIndex = Math.max(0, Math.min(gallerySlides.length - 1, newIndex));
+      if (clampedIndex !== galleryIndex) {
+        galleryIndex = clampedIndex;
+        updateGalleryUI(galleryIndex);
+        if (galleryIndex === galleryTotal) resetFromCloneToFirst();
+      }
+    }, { passive: true });
+
+    function startGalleryAutoplay() {
+      stopGalleryAutoplay();
+      galleryTimer = setInterval(() => {
+        if (galleryIndex < galleryTotal) {
+          goToGallerySlide(galleryIndex + 1);
+        } else {
+          galleryTrack.style.scrollBehavior = "auto";
+          galleryTrack.scrollLeft = 0;
+          galleryIndex = 0;
+          updateGalleryUI(0);
+          requestAnimationFrame(() => { galleryTrack.style.scrollBehavior = ""; });
+        }
+      }, 4500);
+    }
+
+    function stopGalleryAutoplay() {
+      if (galleryTimer) {
+        clearInterval(galleryTimer);
+        galleryTimer = null;
+      }
+    }
+
+    function restartGalleryAutoplay() { startGalleryAutoplay(); }
+
+    let galleryPointerStartX = 0;
+    let galleryPointerMoved = false;
+
+    gallerySlider.addEventListener("pointerdown", (event) => {
+      galleryPointerStartX = event.clientX;
+      galleryPointerMoved = false;
+    });
+
+    gallerySlider.addEventListener("pointermove", (event) => {
+      if (Math.abs(event.clientX - galleryPointerStartX) > 10) galleryPointerMoved = true;
+    });
+
+    gallerySlider.addEventListener("click", (event) => {
+      if (galleryPointerMoved) event.preventDefault();
+    });
+
+    gallerySlider.addEventListener("mouseenter", stopGalleryAutoplay);
+    gallerySlider.addEventListener("mouseleave", startGalleryAutoplay);
+    gallerySlider.addEventListener("focusin", stopGalleryAutoplay);
+    gallerySlider.addEventListener("focusout", startGalleryAutoplay);
+    gallerySlider.addEventListener("pointerdown", stopGalleryAutoplay);
+    gallerySlider.addEventListener("pointerup", restartGalleryAutoplay);
+
+    updateGalleryUI();
+    startGalleryAutoplay();
+
+    // Outlet carousel
+    const outletTrack = document.getElementById("outletTrack");
+    const outletPrev = document.getElementById("outletPrev");
+    const outletNext = document.getElementById("outletNext");
+
+    function outletStep() {
+      const firstCard = outletTrack.querySelector(".outlet-card");
+      if (!firstCard) return 260;
+      const gap = 14;
+      return firstCard.getBoundingClientRect().width + gap;
+    }
+
+    outletPrev.addEventListener("click", () => {
+      outletTrack.scrollBy({ left: -outletStep(), behavior: "smooth" });
+    });
+
+    outletNext.addEventListener("click", () => {
+      outletTrack.scrollBy({ left: outletStep(), behavior: "smooth" });
+    });
+
+    // Daily Happy Hour: 5:00 PM - 7:00 PM
+    const happyTitle = document.getElementById("happyTitle");
+    const happyStatus = document.getElementById("happyStatus");
+    const hoursEl = document.getElementById("hours");
+    const minutesEl = document.getElementById("minutes");
+    const secondsEl = document.getElementById("seconds");
+
+    function getHappyHourState() {
+      const now = new Date();
+      const todayStart = new Date(now);
+      todayStart.setHours(17, 0, 0, 0);
+      const todayEnd = new Date(now);
+      todayEnd.setHours(19, 0, 0, 0);
+
+      if (now < todayStart) {
+        return { title: "Happy Hour", status: "Starts In", target: todayStart };
+      }
+
+      if (now < todayEnd) {
+        return { title: "Happy Hour Is Live", status: "Ends In", target: todayEnd };
+      }
+
+      const tomorrowStart = new Date(todayStart);
+      tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+      return { title: "Happy Hour Has Ended", status: "Next Starts In", target: tomorrowStart };
+    }
+
+    function updateCountdown() {
+      const now = new Date();
+      const state = getHappyHourState();
+      const diff = Math.max(0, state.target - now);
+
+      happyTitle.textContent = state.title;
+      happyStatus.textContent = state.status;
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      hoursEl.textContent = String(hours).padStart(2, "0") + "H";
+      minutesEl.textContent = String(minutes).padStart(2, "0") + "M";
+      secondsEl.textContent = String(seconds).padStart(2, "0") + "S";
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
