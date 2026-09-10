@@ -1,0 +1,1773 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Kitchen On The Wheels | Digital Menu</title>
+
+  <style>
+    :root{
+      --teal:#559f9f;
+      --teal-dark:#2f7778;
+      --teal-soft:#eaf5f5;
+      --ink:#24445b;
+      --muted:#6f8493;
+      --bg:#eef1f4;
+      --white:#ffffff;
+      --line:#e8edf0;
+      --tab:#f6f7f8;
+      --shadow:0 8px 22px rgba(25,47,66,.09);
+      --radius:12px;
+      --header-h:60px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:auto;overflow-y:auto}
+    body{
+      margin:0;
+      min-height:100vh;
+      overflow-x:hidden;
+      overflow-y:auto;
+      font-family:Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      color:var(--ink);
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -webkit-overflow-scrolling:touch;
+    }
+    body.modal-open{overflow:hidden}
+    button,input{font:inherit}
+    button{color:inherit}
+    img{display:block;max-width:100%}
+
+    .app{
+      width:min(100%, 520px);
+      min-height:100vh;
+      margin:0 auto;
+      background:var(--white);
+      overflow:visible;
+      box-shadow:0 0 50px rgba(0,0,0,.05);
+    }
+
+    /* =========================================================
+       TOP HEADER
+       This is always sticky.
+       ========================================================= */
+    .sticky-stack{
+      position:fixed;
+      top:0;
+      left:50%;
+      transform:translateX(-50%);
+      width:min(100%, 520px);
+      z-index:999;
+      background:rgba(255,255,255,.99);
+      box-shadow:0 2px 10px rgba(25,47,66,.08);
+    }
+
+    .sticky-spacer{
+      height:var(--sticky-stack-height, 112px);
+    }
+
+    .topbar{
+      position:relative;
+      z-index:2;
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:flex-end;
+      gap:12px;
+      padding:9px 17px;
+      background:rgba(255,255,255,.98);
+      border-bottom:1px solid rgba(232,237,240,.9);
+      backdrop-filter:blur(12px);
+    }
+
+    .header-side{
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .round-btn{
+      width:39px;
+      height:39px;
+      flex:0 0 39px;
+      display:grid;
+      place-items:center;
+      border:0;
+      border-radius:50%;
+      background:var(--teal);
+      color:#fff;
+      cursor:pointer;
+      transition:transform .16s ease, background .16s ease;
+    }
+
+    .round-btn:hover{background:var(--teal-dark)}
+    .round-btn:active{transform:scale(.96)}
+
+    .round-btn svg{
+      width:20px;
+      height:20px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:2;
+      stroke-linecap:round;
+      stroke-linejoin:round;
+    }
+
+    /* =========================================================
+       HERO IMAGE
+       It scrolls normally and is NOT sticky.
+       To replace it, add assets/menu/hero.jpg
+       ========================================================= */
+    .hero-wrap{
+      padding:0 17px;
+      background:#fff;
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      width:100%;
+      aspect-ratio:1.55 / 1;
+      border-radius:14px;
+      background:linear-gradient(135deg,#dce8e8,#b9cece);
+    }
+    .hero img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    /* =========================================================
+       CATEGORY BAR
+       The header and categories are kept together in one FIXED stack.
+       This guarantees they remain visible at the top for the entire page scroll,
+       including inside Preview/iframe environments where sticky can behave inconsistently.
+       ========================================================= */
+    .category-nav{
+      position:relative;
+      z-index:1;
+      display:flex;
+      align-items:center;
+      gap:6px;
+      padding:8px 14px;
+      background:rgba(255,255,255,.98);
+      border-bottom:1px solid var(--line);
+      backdrop-filter:blur(10px);
+    }
+
+    .category-menu-btn{
+      width:30px;
+      height:36px;
+      flex:0 0 30px;
+      display:grid;
+      place-items:center;
+      border:0;
+      background:transparent;
+      color:var(--teal);
+      cursor:pointer;
+    }
+    .category-menu-btn svg{
+      width:20px;
+      height:20px;
+      fill:none;
+      stroke:currentColor;
+      stroke-width:2.2;
+      stroke-linecap:round;
+    }
+
+    .category-track{
+      min-width:0;
+      flex:1;
+      display:flex;
+      align-items:center;
+      gap:7px;
+      overflow-x:auto;
+      scrollbar-width:none;
+      scroll-behavior:smooth;
+      overscroll-behavior-x:contain;
+    }
+    .category-track::-webkit-scrollbar{display:none}
+
+    .category-btn{
+      flex:0 0 auto;
+      border:0;
+      border-radius:7px;
+      background:var(--tab);
+      color:var(--ink);
+      padding:9px 13px;
+      font-size:.86rem;
+      line-height:1;
+      font-weight:500;
+      white-space:nowrap;
+      cursor:pointer;
+      transition:.15s ease;
+    }
+    .category-btn.active{
+      background:var(--teal);
+      color:#fff;
+    }
+
+    .intro{
+      margin:0;
+      padding:32px 18px 4px;
+      font-size:.91rem;
+      line-height:1.55;
+      color:var(--ink);
+    }
+
+    .menu-content{
+      padding:0 17px 58px;
+      overflow:visible;
+    }
+
+    .menu-section{
+      padding-top:28px;
+      scroll-margin-top:calc(var(--sticky-stack-height, 112px) + 12px);
+    }
+
+    .section-title{
+      margin:0 0 42px;
+      font-size:1.18rem;
+      line-height:1.2;
+      font-weight:800;
+      letter-spacing:-.01em;
+    }
+
+    .product-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:18px 18px;
+    }
+
+    .product-card{
+      min-width:0;
+      overflow:hidden;
+      border-radius:7px;
+      background:#fff;
+      box-shadow:var(--shadow);
+      cursor:pointer;
+      border:1px solid rgba(232,237,240,.8);
+      transition:transform .16s ease, box-shadow .16s ease;
+    }
+    .product-card:active{transform:scale(.992)}
+
+    .product-image{
+      position:relative;
+      aspect-ratio:1.17 / 1;
+      overflow:hidden;
+      background:#dfe7e8;
+    }
+    .product-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .product-body{
+      padding:12px 11px 13px;
+    }
+
+    .product-name{
+      margin:0;
+      font-size:.93rem;
+      line-height:1.28;
+      font-weight:500;
+      color:var(--ink);
+    }
+
+    .dietary{
+      min-height:17px;
+      margin:3px 0 0;
+      color:#8ea0ad;
+      font-size:.71rem;
+      line-height:1.25;
+      font-style:italic;
+    }
+
+    .product-desc{
+      margin:9px 0 0;
+      min-height:40px;
+      color:#617d91;
+      font-size:.78rem;
+      line-height:1.45;
+      display:-webkit-box;
+      -webkit-line-clamp:2;
+      -webkit-box-orient:vertical;
+      overflow:hidden;
+    }
+
+    .price-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:9px;
+    }
+
+    .price{
+      font-size:.82rem;
+      font-weight:750;
+      color:var(--ink);
+    }
+
+
+    .old-price{
+      color:#a0abb2;
+      font-size:.76rem;
+      text-decoration:line-through;
+    }
+
+    .custom-badge{
+      display:inline-flex;
+      margin-top:8px;
+      padding:4px 7px;
+      border-radius:999px;
+      background:var(--teal-soft);
+      color:var(--teal-dark);
+      font-size:.64rem;
+      font-weight:800;
+    }
+
+    .no-results{
+      display:none;
+      padding:40px 20px 90px;
+      text-align:center;
+      color:var(--muted);
+    }
+    .no-results.show{display:block}
+
+    .footer{
+      padding:20px 18px max(32px,env(safe-area-inset-bottom));
+      border-top:1px solid var(--line);
+      color:#7c8e9a;
+      text-align:center;
+      font-size:.77rem;
+      line-height:1.6;
+    }
+
+    /* =========================================================
+       BOTTOM SHEETS
+       ========================================================= */
+    .overlay{
+      position:fixed;
+      inset:0;
+      z-index:120;
+      display:none;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(18,34,47,.46);
+    }
+    .overlay.open{display:flex}
+
+    .sheet{
+      width:min(100%,520px);
+      max-height:88vh;
+      overflow-y:auto;
+      background:#fff;
+      border-radius:22px 22px 0 0;
+      box-shadow:0 -18px 50px rgba(0,0,0,.22);
+      padding-bottom:max(16px,env(safe-area-inset-bottom));
+      overscroll-behavior:contain;
+    }
+
+    .sheet-handle{
+      width:42px;
+      height:4px;
+      margin:9px auto 3px;
+      border-radius:999px;
+      background:#d7dde0;
+    }
+
+    .sheet-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 16px 12px;
+      border-bottom:1px solid var(--line);
+    }
+    .sheet-head h2{
+      margin:0;
+      font-size:1.05rem;
+    }
+    .close-btn{
+      width:34px;
+      height:34px;
+      border:0;
+      border-radius:50%;
+      background:#f1f4f5;
+      font-size:1.15rem;
+      cursor:pointer;
+    }
+
+    .language-list,
+    .category-sheet-list{
+      display:grid;
+      gap:8px;
+      padding:14px;
+    }
+
+    .language-option,
+    .category-sheet-btn{
+      width:100%;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      border:1px solid var(--line);
+      border-radius:11px;
+      background:#fff;
+      padding:13px 14px;
+      text-align:start;
+      cursor:pointer;
+    }
+
+    .language-option.active,
+    .category-sheet-btn.active{
+      border-color:var(--teal);
+      background:var(--teal-soft);
+    }
+
+    .language-option span:first-child,
+    .category-sheet-btn span:first-child{
+      font-weight:700;
+    }
+
+    .check{
+      color:var(--teal);
+      font-weight:900;
+    }
+
+    .detail-image{
+      width:100%;
+      aspect-ratio:1.4 / 1;
+      overflow:hidden;
+      background:#dfe7e8;
+    }
+    .detail-image img{
+      width:100%;
+      height:100%;
+      object-fit:cover;
+    }
+
+    .detail-content{
+      padding:16px;
+    }
+    .detail-category{
+      color:var(--teal-dark);
+      font-size:.70rem;
+      font-weight:850;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+    }
+    .detail-content h2{
+      margin:6px 0;
+      font-size:1.3rem;
+      line-height:1.2;
+    }
+    .detail-price{
+      font-size:.95rem;
+      font-weight:850;
+    }
+    .detail-desc{
+      margin:12px 0 0;
+      color:#657f91;
+      font-size:.88rem;
+      line-height:1.55;
+    }
+    .modifier{
+      margin-top:15px;
+      padding-top:13px;
+      border-top:1px solid var(--line);
+    }
+    .modifier h3{
+      margin:0 0 5px;
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.04em;
+    }
+    .modifier p{
+      margin:0;
+      color:#6d8290;
+      font-size:.85rem;
+      line-height:1.5;
+    }
+
+    .info-content{
+      padding:2px 16px 18px;
+      color:#657b8a;
+      font-size:.88rem;
+      line-height:1.6;
+    }
+    .info-row{
+      padding:13px 0;
+      border-bottom:1px solid var(--line);
+    }
+    .info-row:last-child{border-bottom:0}
+    .info-row strong{
+      display:block;
+      margin-bottom:2px;
+      color:var(--ink);
+    }
+
+
+    @media (min-width:680px){
+      body{padding:18px 0}
+      .app{border-radius:22px}
+      .sticky-stack{
+        top:0;
+        border-radius:0 0 16px 16px;
+      }
+      .product-grid{gap:20px}
+      .overlay{align-items:flex-end;padding:0}
+      .sheet{border-radius:22px 22px 0 0}
+    }
+
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{
+        scroll-behavior:auto!important;
+        transition:none!important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<main class="app">
+
+  <div class="sticky-stack">
+    <header class="topbar">
+      <div class="header-side">
+        <button class="round-btn" id="languageBtn" aria-label="Language">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M3.5 12h17M12 3.5c2.3 2.3 3.6 5.1 3.6 8.5S14.3 18.2 12 20.5c-2.3-2.3-3.6-5.1-3.6-8.5S9.7 5.8 12 3.5Z"></path></svg>
+        </button>
+
+        <button class="round-btn" id="infoBtn" aria-label="Information">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"></circle><path d="M12 10.5v5.5M12 7.5h.01"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <nav class="category-nav" aria-label="Menu categories">
+      <button class="category-menu-btn" id="categoryMenuBtn" aria-label="All categories">
+        <svg viewBox="0 0 24 24"><path d="M5 7h14M5 12h14M5 17h14"></path></svg>
+      </button>
+      <div class="category-track" id="categoryTrack"></div>
+    </nav>
+  </div>
+
+  <div class="sticky-spacer" aria-hidden="true"></div>
+
+  <section class="hero-wrap">
+    <div class="hero">
+      <img
+        src="assets/menu/hero.jpg"
+        alt="Kitchen On The Wheels"
+      >
+    </div>
+  </section>
+
+  <p class="intro" id="introText">
+    Fresh & made with love. Available from 10:00 PM to 05:00 AM.
+  </p>
+
+  <div class="menu-content" id="menuContent"></div>
+  <div class="no-results" id="noResults">No menu items found.</div>
+
+  <footer class="footer">
+    <strong data-ui="pricing">Pricing</strong><br>
+    <span data-ui="pricingNote">All prices are in AED and include 5% VAT, 7% Municipality Fee and 10% Service Charge.</span>
+  </footer>
+</main>
+
+<!-- Language -->
+<div class="overlay" id="languageOverlay" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 data-ui="chooseLanguage">Choose language</h2>
+      <button class="close-btn" data-close="languageOverlay" aria-label="Close">×</button>
+    </div>
+    <div class="language-list">
+      <button class="language-option active" data-lang="en">
+        <span>English</span><span class="check">✓</span>
+      </button>
+      <button class="language-option" data-lang="ar">
+        <span>العربية</span><span class="check"></span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Categories -->
+<div class="overlay" id="categoryOverlay" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 data-ui="categoriesTitle">Menu categories</h2>
+      <button class="close-btn" data-close="categoryOverlay" aria-label="Close">×</button>
+    </div>
+    <div class="category-sheet-list" id="categorySheetList"></div>
+  </div>
+</div>
+
+<!-- Product details -->
+<div class="overlay" id="detailOverlay" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 data-ui="itemDetails">Item details</h2>
+      <button class="close-btn" data-close="detailOverlay" aria-label="Close">×</button>
+    </div>
+    <div id="detailBody"></div>
+  </div>
+</div>
+
+<!-- Information -->
+<div class="overlay" id="infoOverlay" role="dialog" aria-modal="true">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <h2 data-ui="information">Information</h2>
+      <button class="close-btn" data-close="infoOverlay" aria-label="Close">×</button>
+    </div>
+
+    <div class="info-content">
+      <div class="info-row">
+        <strong data-ui="openingHours">Opening hours</strong>
+        <span>10:00 PM - 05:00 AM</span>
+      </div>
+      <div class="info-row">
+        <strong data-ui="pricing">Pricing</strong>
+        <span data-ui="pricingNote">All prices are in AED and include 5% VAT, 7% Municipality Fee and 10% Service Charge.</span>
+      </div>
+      <div class="info-row">
+        <strong data-ui="fresh">Fresh & made with love</strong>
+        <span data-ui="infoText">Late-night menu with quick bites, pizzas, burgers, sandwiches, sides, smoothies, snacks, ice cream and beverages.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+  const UI = {
+    en:{
+      chooseLanguage:"Choose language",
+      categoriesTitle:"Menu categories",
+      itemDetails:"Item details",
+      information:"Information",
+      openingHours:"Opening hours",
+      pricing:"Pricing",
+      pricingNote:"All prices are in AED and include 5% VAT, 7% Municipality Fee and 10% Service Charge.",
+      fresh:"Fresh & made with love",
+      infoText:"Late-night menu with quick bites, pizzas, burgers, sandwiches, sides, smoothies, snacks, ice cream and beverages.",
+      intro:"Fresh & made with love. Available from 10:00 PM to 05:00 AM.",
+      noResults:"No menu items found.",
+      custom:"Customize"
+    },
+    ar:{
+      chooseLanguage:"اختر اللغة",
+      categoriesTitle:"أقسام القائمة",
+      itemDetails:"تفاصيل الصنف",
+      information:"معلومات",
+      openingHours:"ساعات العمل",
+      pricing:"الأسعار",
+      pricingNote:"جميع الأسعار بالدرهم الإماراتي وتشمل 5% ضريبة القيمة المضافة و7% رسوم البلدية و10% رسوم الخدمة.",
+      fresh:"طازج ومحضر بحب",
+      infoText:"قائمة ليلية تشمل الوجبات السريعة والبيتزا والبرغر والسندويتشات والإضافات والسموذي والوجبات الخفيفة والآيس كريم والمشروبات.",
+      intro:"طازج ومحضر بحب. متاح من 10:00 مساءً حتى 05:00 صباحاً.",
+      noResults:"لم يتم العثور على أصناف.",
+      custom:"تخصيص"
+    }
+  };
+
+  const CAT = {
+    quick:{en:"Quick Bites", ar:"لقيمات سريعة"},
+    oven:{en:"From The Oven", ar:"من الفرن"},
+    fried:{en:"Fried Chicken", ar:"دجاج مقلي"},
+    burgers:{en:"Gourmet Burgers", ar:"برغر فاخر"},
+    sandwiches:{en:"Sandwich Stop", ar:"ساندويتشات"},
+    sides:{en:"Little More...", ar:"إضافات"},
+    smoothies:{en:"Smoothies", ar:"سموذي"},
+    snacks:{en:"On The Go...", ar:"أثناء التنقل"},
+    icecream:{en:"Ice Cream", ar:"آيس كريم"},
+    beverages:{en:"Beverages", ar:"مشروبات"}
+  };
+
+  /*
+    IMAGE SYSTEM
+    ------------
+    Do not edit image paths one-by-one in the HTML.
+
+    Each item's image is loaded automatically using its id:
+      assets/menu/<item-id>.jpg
+
+    Example:
+      item id = chicken-tenders
+      image = assets/menu/chicken-tenders.jpg
+
+    If the image does not exist, the shared local placeholder is shown automatically.
+  */
+
+  const MENU = [
+    {
+      id: "chicken-tenders",
+      cat: "quick",
+      price: 46,
+
+    dietary: {
+      en: "Vegetarian",
+      ar: "نباتي"
+     },
+      en: {
+        name: "Chicken Tenders",
+        desc: "8 Fried Chicken Strips"
+      },
+      ar: {
+        name: "شرائح دجاج مقرمشة",
+        desc: "8 شرائح دجاج مقلية"
+      }
+    },
+    {
+      id: "chicago-hotdog",
+      cat: "quick",
+      price: 46,
+      en: {
+        name: "Chicago Style Hot Dog",
+        desc: "Beef/Chicken Sausage, Mustard Mayo, Jalapeno, Fresh Tomato, Lettuce, onions"
+      },
+      ar: {
+        name: "هوت دوغ على طريقة شيكاغو",
+        desc: "سجق لحم بقري/دجاج، مايونيز بالخردل، هالبينو، طماطم طازجة، خس، بصل"
+      }
+    },
+    {
+      id: "nachos-grande",
+      cat: "quick",
+      price: 30,
+      en: {
+        name: "Nachos Grande",
+        desc: "Jalapenos, Tomatoes, Melted Cheese and tortilla chips."
+      },
+      ar: {
+        name: "ناتشوز غراند",
+        desc: "هالبينو، طماطم، جبن مذاب ورقائق تورتيلا."
+      }
+    },
+    {
+      id: "chicken-shawarma",
+      cat: "quick",
+      price: 36,
+      en: {
+        name: "Chicken Shawarma",
+        desc: "Chicken, Lettuce, Tomatoes, Onion and Garlic Sauce, Arabic Pickle"
+      },
+      ar: {
+        name: "شاورما دجاج",
+        desc: "دجاج، خس، طماطم، بصل، صلصة ثوم ومخلل عربي"
+      }
+    },
+    {
+      id: "falafal-wrap",
+      cat: "quick",
+      price: 30,
+      en: {
+        name: "Arabic Falafal Wrap",
+        desc: "Fried crispy falafel, Lettuce, Tomatoes, Onion and Garlic Sauce, Arabic Pickle."
+      },
+      ar: {
+        name: "لفافة فلافل عربية",
+        desc: "فلافل مقلية مقرمشة، خس، طماطم، بصل، صلصة ثوم ومخلل عربي."
+      }
+    },
+
+    {
+      id: "chicken-tikka-pizza",
+      cat: "oven",
+      price: 50,
+      en: {
+        name: "Chicken Tikka Pizza",
+        desc: "Chicken Pieces, Tomato, Mozzarella Cheese"
+      },
+      ar: {
+        name: "بيتزا دجاج تيكا",
+        desc: "قطع دجاج، طماطم، جبن موزاريلا"
+      }
+    },
+    {
+      id: "wise-guy-pizza",
+      cat: "oven",
+      price: 60,
+      en: {
+        name: "The Wise Guy Pizza",
+        desc: "Tomato Sauce, Mozzarella, Onion, Peri-Peri, Olives, Chicken Sausage"
+      },
+      ar: {
+        name: "بيتزا ذا وايز غاي",
+        desc: "صلصة طماطم، موزاريلا، بصل، بيري بيري، زيتون، سجق دجاج"
+      }
+    },
+    {
+      id: "hot-hawaiian-pizza",
+      cat: "oven",
+      price: 55,
+      en: {
+        name: "Hot Hawaiian Pizza",
+        desc: "Pizza Sauce, Mozzarella Cheese, Beef salami and Pineapple"
+      },
+      ar: {
+        name: "بيتزا هاوايان الحارة",
+        desc: "صلصة بيتزا، جبن موزاريلا، سلامي بقري وأناناس"
+      }
+    },
+    {
+      id: "veggie-sounder-pizza",
+      cat: "oven",
+      price: 45,
+      en: {
+        name: "Veggie Sounder Pizza",
+        desc: "Tomato Pizza Sauce, Mozzarella, Peppers, Mushrooms, Tomatoes, Onion, Black Olives"
+      },
+      ar: {
+        name: "بيتزا خضار ساوندر",
+        desc: "صلصة بيتزا بالطماطم، موزاريلا، فلفل، فطر، طماطم، بصل، زيتون أسود"
+      }
+    },
+    {
+      id: "build-taco",
+      cat: "oven",
+      price: 35,
+      badge: true,
+      en: {
+        name: "Build Your Taco",
+        desc: "Choose your base, main, topping and dressing."
+      },
+      ar: {
+        name: "اصنع تاكو خاصتك",
+        desc: "اختر القاعدة والمكون الرئيسي والإضافات والصلصة."
+      },
+      modifiers: {
+        en: [
+          ["Choose your base", "Soft Tortilla | Crispy Tortilla"],
+          ["Choose your main", "Chicken | Beef | Vegetable"],
+          ["Choose your topping", "Cheese | Shredded Lettuce | Red Onion | Jalapeno Slice | Tomatoes | Olives"],
+          ["Choose your dressing", "Cheese | Tomato Ketchup | Mustard Sauce | Mayonnaise"]
+        ],
+        ar: [
+          ["اختر القاعدة", "تورتيلا طرية | تورتيلا مقرمشة"],
+          ["اختر المكون الرئيسي", "دجاج | لحم بقري | خضار"],
+          ["اختر الإضافات", "جبن | خس مبشور | بصل أحمر | شرائح هالبينو | طماطم | زيتون"],
+          ["اختر الصلصة", "جبن | كاتشب طماطم | خردل | مايونيز"]
+        ]
+      }
+    },
+
+    {
+      id: "bbq-wings",
+      cat: "fried",
+      price: 59,
+      en: {
+        name: "BBQ Chicken Wings",
+        desc: "6 chicken wings, topped with BBQ Sauce"
+      },
+      ar: {
+        name: "أجنحة دجاج باربكيو",
+        desc: "6 أجنحة دجاج مغطاة بصلصة الباربكيو"
+      }
+    },
+    {
+      id: "southern-fried",
+      cat: "fried",
+      price: 55,
+      en: {
+        name: "Southern Fried Chicken",
+        desc: "Fried Chicken, served with spicy sauce"
+      },
+      ar: {
+        name: "دجاج مقلي على الطريقة الجنوبية",
+        desc: "دجاج مقلي يقدم مع صلصة حارة"
+      }
+    },
+
+    {
+      id: "chicken-burger",
+      cat: "burgers",
+      price: 75,
+      en: {
+        name: "Chicken Burger",
+        desc: "Grilled Chicken, Bacon, Cheddar cheese, Lettuce, Tomato, Gherkins, Onion and Cocktail Sauce."
+      },
+      ar: {
+        name: "برغر دجاج",
+        desc: "دجاج مشوي، بيكون، جبن شيدر، خس، طماطم، خيار مخلل، بصل وصلصة كوكتيل."
+      }
+    },
+    {
+      id: "texas-cheese-burger",
+      cat: "burgers",
+      price: 75,
+      en: {
+        name: "Texas Cheese Burger",
+        desc: "Beef patty, Turkey, Cheddar cheese, Lettuce, Tomato, Gherkins, Caramelized Onion and Mustard."
+      },
+      ar: {
+        name: "برغر تكساس بالجبن",
+        desc: "قطعة لحم بقري، ديك رومي، جبن شيدر، خس، طماطم، خيار مخلل، بصل مكرمل وخردل."
+      }
+    },
+    {
+      id: "crispy-comet-frico",
+      cat: "burgers",
+      price: 45,
+      en: {
+        name: "Crispy Comet Frico",
+        desc: "Comté Cheese Crisps Similar to Parmesan, Crunchy Frico Layer to these cheeseburgers."
+      },
+      ar: {
+        name: "كريسبي كوميت فريكو",
+        desc: "رقائق جبن كونتيه شبيهة بالبارميزان مع طبقة فريكو مقرمشة."
+      }
+    },
+    {
+      id: "ultimate-veggie",
+      cat: "burgers",
+      price: 30,
+      en: {
+        name: "Ultimate Veggie",
+        desc: "Veg patty, Cheddar cheese, Lettuce, Tomato, Gherkins, Onion and Tomato Sauce."
+      },
+      ar: {
+        name: "ألتيميت فيجي",
+        desc: "قطعة خضار، جبن شيدر، خس، طماطم، خيار مخلل، بصل وصلصة طماطم."
+      }
+    },
+
+    {
+      id: "turkey-cheese",
+      cat: "sandwiches",
+      price: 40,
+      en: {
+        name: "Turkey And Cheese",
+        desc: "Bread, Turkey, Cheddar Cheese, Lettuce, Corn, Tomato, Spicy Mayo."
+      },
+      ar: {
+        name: "ديك رومي وجبن",
+        desc: "خبز، ديك رومي، جبن شيدر، خس، ذرة، طماطم ومايونيز حار."
+      }
+    },
+    {
+      id: "french-onion",
+      cat: "sandwiches",
+      price: 40,
+      en: {
+        name: "French Onion",
+        desc: "Bread, Caramelized Onion, Bacon, Parmesan, Lettuce, Tomato, Spicy Mayo."
+      },
+      ar: {
+        name: "بصل فرنسي",
+        desc: "خبز، بصل مكرمل، بيكون، بارميزان، خس، طماطم ومايونيز حار."
+      }
+    },
+    {
+      id: "caprese-grilled",
+      cat: "sandwiches",
+      price: 35,
+      en: {
+        name: "Caprese Grilled Out",
+        desc: "Toasted Bread, Mozzarella, Lettuce, Basil, Tomato, Spicy Mayo."
+      },
+      ar: {
+        name: "كابريزي مشوي",
+        desc: "خبز محمص، موزاريلا، خس، ريحان، طماطم ومايونيز حار."
+      }
+    },
+
+    {
+      id: "loaded-cheese-fries",
+      cat: "sides",
+      price: 30,
+      en: {
+        name: "Loaded Cheese Fries",
+        desc: ""
+      },
+      ar: {
+        name: "بطاطا مقلية محملة بالجبن",
+        desc: ""
+      }
+    },
+    {
+      id: "crispy-onion-rings",
+      cat: "sides",
+      price: 25,
+      en: {
+        name: "Crispy Onion Rings",
+        desc: ""
+      },
+      ar: {
+        name: "حلقات بصل مقرمشة",
+        desc: ""
+      }
+    },
+    {
+      id: "jalapeno-poppers",
+      cat: "sides",
+      price: 30,
+      en: {
+        name: "Jalapeno Poppers",
+        desc: ""
+      },
+      ar: {
+        name: "هالبينو بوبرز",
+        desc: ""
+      }
+    },
+    {
+      id: "french-fries",
+      cat: "sides",
+      price: 25,
+      en: {
+        name: "French Fries",
+        desc: ""
+      },
+      ar: {
+        name: "بطاطا مقلية",
+        desc: ""
+      }
+    },
+    {
+      id: "cut-fruit",
+      cat: "sides",
+      price: 25,
+      en: {
+        name: "Cut Fruit",
+        desc: ""
+      },
+      ar: {
+        name: "فواكه مقطعة",
+        desc: ""
+      }
+    },
+
+    {
+      id: "green-machine",
+      cat: "smoothies",
+      price: 44,
+      en: {
+        name: "Green Machine",
+        desc: "Spinach, Celery, Broccoli, Mango, Banana, Pineapple"
+      },
+      ar: {
+        name: "جرين ماشين",
+        desc: "سبانخ، كرفس، بروكلي، مانجو، موز، أناناس"
+      }
+    },
+    {
+      id: "black-forest",
+      cat: "smoothies",
+      price: 44,
+      en: {
+        name: "Black Forest",
+        desc: "Blueberry, Blackberry, Blackcurrant, Cherry, Active Charcoal"
+      },
+      ar: {
+        name: "بلاك فورست",
+        desc: "توت أزرق، توت أسود، كشمش أسود، كرز، فحم نشط"
+      }
+    },
+    {
+      id: "raspberry-love",
+      cat: "smoothies",
+      price: 44,
+      en: {
+        name: "Raspberry Love",
+        desc: "Blueberry, Blackberry, Banana"
+      },
+      ar: {
+        name: "راسبيري لوف",
+        desc: "توت أزرق، توت أسود، موز"
+      }
+    },
+    {
+      id: "pink-dragon",
+      cat: "smoothies",
+      price: 44,
+      en: {
+        name: "Pink Dragon",
+        desc: "Dragon Fruit, Mango, Strawberry"
+      },
+      ar: {
+        name: "بينك دراغون",
+        desc: "فاكهة التنين، مانجو، فراولة"
+      }
+    },
+    {
+      id: "acai-kick",
+      cat: "smoothies",
+      price: 44,
+      en: {
+        name: "Acai Kick",
+        desc: "Acai, Blueberry, Mango, Banana"
+      },
+      ar: {
+        name: "أكاي كيك",
+        desc: "أكاي، توت أزرق، مانجو، موز"
+      }
+    },
+
+    {
+      id: "snickers",
+      cat: "snacks",
+      price: 10,
+      en: {
+        name: "Snickers Chocolate",
+        desc: ""
+      },
+      ar: {
+        name: "شوكولاتة سنيكرز",
+        desc: ""
+      }
+    },
+    {
+      id: "kitkat",
+      cat: "snacks",
+      price: 12,
+      en: {
+        name: "Kit Kat Chocolate",
+        desc: ""
+      },
+      ar: {
+        name: "شوكولاتة كيت كات",
+        desc: ""
+      }
+    },
+    {
+      id: "mars",
+      cat: "snacks",
+      price: 12,
+      en: {
+        name: "Mars Chocolate",
+        desc: ""
+      },
+      ar: {
+        name: "شوكولاتة مارس",
+        desc: ""
+      }
+    },
+    {
+      id: "ferrero",
+      cat: "snacks",
+      price: 15,
+      en: {
+        name: "Ferrero Rocher",
+        desc: ""
+      },
+      ar: {
+        name: "فيريرو روشيه",
+        desc: ""
+      }
+    },
+    {
+      id: "french-cheese-chips",
+      cat: "snacks",
+      price: 15,
+      en: {
+        name: "French Cheese Chips",
+        desc: ""
+      },
+      ar: {
+        name: "شيبس بالجبن الفرنسي",
+        desc: ""
+      }
+    },
+    {
+      id: "potato-chips",
+      cat: "snacks",
+      price: 10,
+      en: {
+        name: "Potato Chips",
+        desc: ""
+      },
+      ar: {
+        name: "رقائق البطاطا",
+        desc: ""
+      }
+    },
+    {
+      id: "oman-chips",
+      cat: "snacks",
+      price: 15,
+      en: {
+        name: "Oman Chips",
+        desc: ""
+      },
+      ar: {
+        name: "شيبس عمان",
+        desc: ""
+      }
+    },
+
+    {
+      id: "chocolate-icecream",
+      cat: "icecream",
+      price: 20,
+      en: {
+        name: "Chocolate",
+        desc: ""
+      },
+      ar: {
+        name: "شوكولاتة",
+        desc: ""
+      }
+    },
+    {
+      id: "vanilla-icecream",
+      cat: "icecream",
+      price: 20,
+      en: {
+        name: "Vanilla",
+        desc: ""
+      },
+      ar: {
+        name: "فانيليا",
+        desc: ""
+      }
+    },
+    {
+      id: "mix-icecream",
+      cat: "icecream",
+      price: 20,
+      en: {
+        name: "Mix",
+        desc: ""
+      },
+      ar: {
+        name: "مشكل",
+        desc: ""
+      }
+    },
+
+    {
+      id: "red-bull",
+      cat: "beverages",
+      price: 30,
+      en: {
+        name: "Red Bull",
+        desc: ""
+      },
+      ar: {
+        name: "ريد بُل",
+        desc: ""
+      }
+    },
+    {
+      id: "soft-drinks",
+      cat: "beverages",
+      price: 15,
+      en: {
+        name: "Soft Drinks",
+        desc: ""
+      },
+      ar: {
+        name: "مشروبات غازية",
+        desc: ""
+      }
+    },
+    {
+      id: "water-bottle",
+      cat: "beverages",
+      price: 10,
+      en: {
+        name: "Water Bottle",
+        desc: ""
+      },
+      ar: {
+        name: "زجاجة ماء",
+        desc: ""
+      }
+    }
+  ];
+
+  const categoryOrder = [
+    "quick","oven","fried","burgers","sandwiches",
+    "sides","smoothies","snacks","icecream","beverages"
+  ];
+
+  let currentLang = localStorage.getItem("kow-menu-lang") || "en";
+  if(!["en","ar"].includes(currentLang)) currentLang = "en";
+
+  const menuContent = document.getElementById("menuContent");
+  const categoryTrack = document.getElementById("categoryTrack");
+  const categorySheetList = document.getElementById("categorySheetList");
+  const noResults = document.getElementById("noResults");
+
+  function esc(v=""){
+    return String(v).replace(/[&<>"']/g,m=>({
+      "&":"&amp;","<":"&lt;",">":"&gt;",
+      "\"":"&quot;","'":"&#039;"
+    }[m]));
+  }
+
+  function itemImage(id){
+    return `assets/menu/${id}.jpg`;
+  }
+
+  function money(value){
+    return currentLang==="ar" ? `د.إ ${value}` : `AED ${value}`;
+  }
+
+  function renderCategories(){
+    categoryTrack.innerHTML = categoryOrder.map((cat,i)=>`
+      <button class="category-btn ${i===0?"active":""}" data-cat="${cat}">
+        ${esc(CAT[cat][currentLang])}
+      </button>
+    `).join("");
+
+    categorySheetList.innerHTML = categoryOrder.map((cat,i)=>`
+      <button class="category-sheet-btn ${i===0?"active":""}" data-cat="${cat}">
+        <span>${esc(CAT[cat][currentLang])}</span>
+        <span class="check">${i===0?"✓":""}</span>
+      </button>
+    `).join("");
+
+    document.querySelectorAll("[data-cat]").forEach(btn=>{
+      btn.addEventListener("click",()=>{
+        const cat = btn.dataset.cat;
+        closeOverlay("categoryOverlay");
+        scrollToCategory(cat);
+      });
+    });
+
+    requestAnimationFrame(syncStickyStackHeight);
+  }
+
+  function renderMenu(){
+    let totalVisible = 0;
+
+    menuContent.innerHTML = categoryOrder.map(cat=>{
+      const items = MENU.filter(item=>item.cat===cat);
+
+      if(!items.length) return "";
+      totalVisible += items.length;
+
+      return `
+        <section class="menu-section" id="section-${cat}" data-section-cat="${cat}">
+          <h2 class="section-title">${esc(CAT[cat][currentLang])}</h2>
+          <div class="product-grid">
+            ${items.map(productCard).join("")}
+          </div>
+        </section>
+      `;
+    }).join("");
+
+    noResults.classList.toggle("show", totalVisible===0);
+
+    menuContent.querySelectorAll(".product-card").forEach(card=>{
+      card.addEventListener("click",()=>openProduct(card.dataset.id));
+      card.addEventListener("keydown",e=>{
+        if(e.key==="Enter" || e.key===" "){
+          e.preventDefault();
+          openProduct(card.dataset.id);
+        }
+      });
+    });
+
+    observeSections();
+  }
+
+  function productCard(item){
+    const t = item[currentLang];
+    return `
+      <article class="product-card" data-id="${item.id}" tabindex="0" role="button">
+        <div class="product-image">
+          <img
+            src="${itemImage(item.id)}"
+            alt="${esc(t.name)}"
+            loading="lazy"
+            onerror="this.onerror=null;this.src='assets/menu/placeholder.svg';"
+          >
+        </div>
+
+        <div class="product-body">
+          <h3 class="product-name">${esc(t.name)}</h3>
+          <p class="dietary">${item.dietary ? esc(typeof item.dietary === "object" ? (item.dietary[currentLang] || "") : item.dietary) : ""}</p>
+          ${t.desc ? `<p class="product-desc">${esc(t.desc)}</p>` : `<p class="product-desc">&nbsp;</p>`}
+          ${item.badge ? `<span class="custom-badge">${esc(UI[currentLang].custom)}</span>` : ""}
+          <div class="price-row">
+            <span class="price">${money(item.price)}</span>
+            ${item.oldPrice ? `<span class="old-price">${money(item.oldPrice)}</span>` : ""}
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  function openProduct(id){
+    const item = MENU.find(x=>x.id===id);
+    if(!item) return;
+
+    const t = item[currentLang];
+
+    const modifiers = item.modifiers
+      ? item.modifiers[currentLang].map(m=>`
+          <div class="modifier">
+            <h3>${esc(m[0])}</h3>
+            <p>${esc(m[1])}</p>
+          </div>
+        `).join("")
+      : "";
+
+    document.getElementById("detailBody").innerHTML = `
+      <div class="detail-image">
+        <img
+          src="${itemImage(item.id)}"
+          alt="${esc(t.name)}"
+          onerror="this.onerror=null;this.src='assets/menu/placeholder.svg';"
+        >
+      </div>
+
+      <div class="detail-content">
+        <div class="detail-category">${esc(CAT[item.cat][currentLang])}</div>
+        <h2>${esc(t.name)}</h2>
+        <div class="detail-price">${money(item.price)}</div>
+        ${t.desc ? `<p class="detail-desc">${esc(t.desc)}</p>` : ""}
+        ${modifiers}
+      </div>
+    `;
+
+    openOverlay("detailOverlay");
+  }
+
+  function setLanguage(lang){
+    currentLang = lang;
+    localStorage.setItem("kow-menu-lang",lang);
+
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang==="ar" ? "rtl" : "ltr";
+
+    document.querySelectorAll("[data-ui]").forEach(el=>{
+      const key = el.dataset.ui;
+      if(UI[lang][key]) el.textContent = UI[lang][key];
+    });
+
+    document.getElementById("introText").textContent = UI[lang].intro;
+    noResults.textContent = UI[lang].noResults;
+
+    document.querySelectorAll(".language-option").forEach(btn=>{
+      const active = btn.dataset.lang===lang;
+      btn.classList.toggle("active",active);
+      btn.querySelector(".check").textContent = active ? "✓" : "";
+    });
+
+    renderCategories();
+    renderMenu();
+    closeOverlay("languageOverlay");
+  }
+
+  function setActiveCategory(cat){
+    document.querySelectorAll(".category-btn").forEach(btn=>{
+      const active = btn.dataset.cat===cat;
+      btn.classList.toggle("active",active);
+    });
+
+    document.querySelectorAll(".category-sheet-btn").forEach(btn=>{
+      const active = btn.dataset.cat===cat;
+      btn.classList.toggle("active",active);
+      btn.querySelector(".check").textContent = active ? "✓" : "";
+    });
+  }
+
+  let categoryScrollTicking = false;
+  let isProgrammaticCategoryScroll = false;
+  let lockedCategory = null;
+  let currentScrollAnimation = null;
+
+  function getStickyHeight(){
+    const stack = document.querySelector(".sticky-stack");
+    return stack ? Math.ceil(stack.getBoundingClientRect().height) : 112;
+  }
+
+  function appleEase(t){
+    /*
+      Controlled ease-in/ease-out:
+      gentle start, fluid middle movement and a soft landing.
+    */
+    return t < 0.5
+      ? 8 * t * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 4) / 2;
+  }
+
+  function animateWindowScroll(targetY, duration=850){
+    if(currentScrollAnimation){
+      cancelAnimationFrame(currentScrollAnimation);
+      currentScrollAnimation = null;
+    }
+
+    const startY = window.scrollY;
+    const distance = targetY - startY;
+
+    if(Math.abs(distance) < 2){
+      window.scrollTo(0,targetY);
+      return Promise.resolve();
+    }
+
+    if(window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+      window.scrollTo(0,targetY);
+      return Promise.resolve();
+    }
+
+    return new Promise(resolve=>{
+      const startTime = performance.now();
+
+      function frame(now){
+        const elapsed = now - startTime;
+        const progress = Math.min(elapsed / duration,1);
+        const eased = appleEase(progress);
+
+        window.scrollTo(0,startY + distance * eased);
+
+        if(progress < 1){
+          currentScrollAnimation = requestAnimationFrame(frame);
+        }else{
+          currentScrollAnimation = null;
+          resolve();
+        }
+      }
+
+      currentScrollAnimation = requestAnimationFrame(frame);
+    });
+  }
+
+  function scrollCategoryTabIntoView(cat){
+    const btn = categoryTrack.querySelector(`.category-btn[data-cat="${cat}"]`);
+    if(!btn) return;
+
+    const desiredLeft =
+      btn.offsetLeft - (categoryTrack.clientWidth - btn.clientWidth) / 2;
+
+    const maxLeft =
+      Math.max(0,categoryTrack.scrollWidth - categoryTrack.clientWidth);
+
+    const left =
+      Math.max(0,Math.min(desiredLeft,maxLeft));
+
+    categoryTrack.scrollTo({
+      left,
+      behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches
+        ? "auto"
+        : "smooth"
+    });
+  }
+
+  async function scrollToCategory(cat){
+    const target = document.getElementById("section-" + cat);
+    if(!target) return;
+
+    /*
+      Lock the category BEFORE the first scroll frame.
+      While this is true, scroll tracking is not allowed to select
+      the section we are passing through.
+    */
+    isProgrammaticCategoryScroll = true;
+    lockedCategory = cat;
+
+    setActiveCategory(cat);
+    scrollCategoryTabIntoView(cat);
+
+    const offset = getStickyHeight() + 14;
+    const targetY = Math.max(
+      0,
+      window.scrollY + target.getBoundingClientRect().top - offset
+    );
+
+    const distance = Math.abs(targetY - window.scrollY);
+
+    /*
+      Longer jumps get a little more time, but the animation remains
+      responsive on a phone.
+    */
+    const duration =
+      Math.max(650,Math.min(1050,650 + distance * 0.16));
+
+    await animateWindowScroll(targetY,duration);
+
+    /*
+      Keep the lock for two final paint frames. This prevents the
+      one-frame/fraction-of-a-second previous-category flash.
+    */
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        isProgrammaticCategoryScroll = false;
+        lockedCategory = null;
+        updateActiveCategoryFromScroll();
+      });
+    });
+  }
+
+  function updateActiveCategoryFromScroll(){
+    const sections =
+      [...document.querySelectorAll("[data-section-cat]")];
+
+    if(!sections.length) return;
+
+    if(isProgrammaticCategoryScroll && lockedCategory){
+      setActiveCategory(lockedCategory);
+      return;
+    }
+
+    const threshold = getStickyHeight() + 18;
+    let active = sections[0].dataset.sectionCat;
+
+    for(const section of sections){
+      const top = section.getBoundingClientRect().top;
+
+      if(top <= threshold){
+        active = section.dataset.sectionCat;
+      }else{
+        break;
+      }
+    }
+
+    setActiveCategory(active);
+    scrollCategoryTabIntoView(active);
+  }
+
+  function observeSections(){
+    updateActiveCategoryFromScroll();
+  }
+
+  window.addEventListener("scroll",()=>{
+    if(categoryScrollTicking) return;
+
+    categoryScrollTicking = true;
+
+    requestAnimationFrame(()=>{
+      if(isProgrammaticCategoryScroll && lockedCategory){
+        setActiveCategory(lockedCategory);
+      }else{
+        updateActiveCategoryFromScroll();
+      }
+
+      categoryScrollTicking = false;
+    });
+  },{passive:true});
+
+  /*
+    Manual interaction immediately cancels an automatic category jump.
+  */
+  ["wheel","touchstart"].forEach(eventName=>{
+    window.addEventListener(eventName,()=>{
+      if(!isProgrammaticCategoryScroll) return;
+
+      if(currentScrollAnimation){
+        cancelAnimationFrame(currentScrollAnimation);
+        currentScrollAnimation = null;
+      }
+
+      isProgrammaticCategoryScroll = false;
+      lockedCategory = null;
+      updateActiveCategoryFromScroll();
+    },{passive:true});
+  });
+
+  function closeAllOverlays(exceptId=null){
+    document.querySelectorAll(".overlay.open").forEach(overlay=>{
+      if(overlay.id !== exceptId){
+        overlay.classList.remove("open");
+      }
+    });
+
+    if(!document.querySelector(".overlay.open")){
+      document.body.classList.remove("modal-open");
+    }
+  }
+
+  function openOverlay(id){
+    const target = document.getElementById(id);
+    if(!target) return;
+
+    // Only one bottom popup can be open at a time.
+    closeAllOverlays(id);
+    target.classList.add("open");
+    document.body.classList.add("modal-open");
+  }
+
+  function toggleOverlay(id){
+    const target = document.getElementById(id);
+    if(!target) return;
+
+    if(target.classList.contains("open")){
+      target.classList.remove("open");
+
+      if(!document.querySelector(".overlay.open")){
+        document.body.classList.remove("modal-open");
+      }
+      return;
+    }
+
+    // Opening a different popup automatically closes the current one.
+    closeAllOverlays();
+    target.classList.add("open");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeOverlay(id){
+    const el = document.getElementById(id);
+    if(el) el.classList.remove("open");
+
+    if(!document.querySelector(".overlay.open")){
+      document.body.classList.remove("modal-open");
+    }
+  }
+
+
+
+  document.getElementById("languageBtn").addEventListener("click",()=>toggleOverlay("languageOverlay"));
+  document.getElementById("infoBtn").addEventListener("click",()=>toggleOverlay("infoOverlay"));
+  document.getElementById("categoryMenuBtn").addEventListener("click",()=>toggleOverlay("categoryOverlay"));
+
+  document.querySelectorAll(".language-option").forEach(btn=>{
+    btn.addEventListener("click",()=>setLanguage(btn.dataset.lang));
+  });
+
+  document.querySelectorAll("[data-close]").forEach(btn=>{
+    btn.addEventListener("click",()=>closeOverlay(btn.dataset.close));
+  });
+
+  document.querySelectorAll(".overlay").forEach(overlay=>{
+    overlay.addEventListener("click",e=>{
+      if(e.target===overlay) closeOverlay(overlay.id);
+    });
+  });
+
+  document.addEventListener("keydown",e=>{
+    if(e.key==="Escape"){
+      document.querySelectorAll(".overlay.open").forEach(o=>closeOverlay(o.id));
+    }
+  });
+
+
+
+  function syncStickyStackHeight(){
+    const stack = document.querySelector(".sticky-stack");
+    if(!stack) return;
+
+    const height = Math.ceil(stack.getBoundingClientRect().height);
+    document.documentElement.style.setProperty("--sticky-stack-height", height + "px");
+  }
+
+  // Keep the reserved space exactly equal to the fixed header/category stack.
+  syncStickyStackHeight();
+  window.addEventListener("resize", syncStickyStackHeight);
+
+  if("ResizeObserver" in window){
+    const stickyResizeObserver = new ResizeObserver(syncStickyStackHeight);
+    const stack = document.querySelector(".sticky-stack");
+    if(stack) stickyResizeObserver.observe(stack);
+  }
+
+  setLanguage(currentLang);
+  requestAnimationFrame(syncStickyStackHeight);
+</script>
+</body>
+</html>
